@@ -1,0 +1,31 @@
+name: Laravel Pint
+
+on:
+  workflow_call:
+
+jobs:
+  laravel-pint:
+    name: Laravel Pint
+
+    if: github.actor != 'dependabot[bot]'
+
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Execute Laravel Pint
+        uses: aglipanci/laravel-pint-action@2.3.0
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Applying PHP code styling'
