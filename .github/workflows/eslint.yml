@@ -1,0 +1,54 @@
+name: ESLint
+
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        description: 'Node.js version to be used.'
+        required: true
+        type: string
+        default: '20.11.1'
+
+jobs:
+  eslint:
+    name: ESLint
+
+    if: github.actor != 'dependabot[bot]'
+
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Cache Node.js packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install Node.js dependencies
+        run: yarn install --immutable
+
+      - name: Execute ESLint
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx,.vue
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 'Linting with ESLint'
