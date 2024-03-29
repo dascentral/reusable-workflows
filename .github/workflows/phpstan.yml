@@ -8,6 +8,10 @@ on:
         required: true
         type: string
         default: '8.2'
+    secrets:
+      composer-auth:
+        description: 'Credentials used to access private repositories'
+        required: false
 
 jobs:
   phpstan:
@@ -33,7 +37,7 @@ jobs:
         with:
           composer-options: "--prefer-dist"
         env:
-          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+          COMPOSER_AUTH: ${{ secrets.composer-auth }}
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan --error-format=github
