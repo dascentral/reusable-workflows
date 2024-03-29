@@ -49,6 +49,6 @@ jobs:
         run: npx eslint . --ext .js,.jsx,.ts,.tsx,.vue
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'Linting with ESLint'
