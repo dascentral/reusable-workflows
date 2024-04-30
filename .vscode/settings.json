@@ -1,6 +1,5 @@
 {
   "editor.formatOnSave": true,
   "editor.renderFinalNewline": "dimmed",
-  "prettier.singleQuote": true,
-  "yaml.customTags": ["!Ref"]
+  "prettier.singleQuote": true
 }
