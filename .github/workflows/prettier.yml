@@ -34,22 +34,19 @@ jobs:
       - name: Enable corepack
         run: corepack enable
 
-      - name: Cache Node.js packages
-        uses: actions/cache@v4
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v2
         with:
-          path: ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-node-
 
       - name: Install Node.js dependencies
-        run: yarn install --immutable
-
-      - name: Fetch latest changes
-        run: git fetch origin
+        run: npm ci
 
       - name: Execute Prettier
-        run: yarn prettier --write .
+        run: npx prettier --write .
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
