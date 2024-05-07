@@ -8,6 +8,11 @@ on:
         required: false
         type: string
         default: '20.12.0'
+      extensions:
+        description: 'File extensions to be linted.'
+        required: false
+        type: string
+        default: '.js,.jsx,.ts,.tsx,.mdx'
 
 jobs:
   eslint:
@@ -43,7 +48,7 @@ jobs:
         run: npm ci
 
       - name: Execute ESLint
-        run: npx eslint . --ext .js,.jsx,.ts,.tsx,.vue,.mdx
+        run: npx eslint . --ext ${{ inputs.extensions }}
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
