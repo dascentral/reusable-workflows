@@ -13,6 +13,11 @@ on:
         required: false
         type: string
         default: '.js,.jsx,.ts,.tsx,.mdx'
+      timeout:
+        description: 'The maximum number of minutes to let a job run before GitHub automatically cancels it.'
+        required: false
+        type: number
+        default: 5
 
 jobs:
   eslint:
@@ -25,7 +30,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    timeout-minutes: 5
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - name: Checkout code
