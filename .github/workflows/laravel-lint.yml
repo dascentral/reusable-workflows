@@ -11,6 +11,11 @@ on:
         description: 'PHP version to be used.'
         required: false
         type: string
+      commit-changes:
+        description: 'Whether to automatically commit linting changes'
+        required: false
+        type: boolean
+        default: false
     secrets:
       composer-auth:
         description: 'Credentials used to access private Composer repositories'
@@ -70,6 +75,7 @@ jobs:
         run: npm run lint
 
       - name: Commit Changes
+        if: ${{ inputs.commit-changes }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Fix code style
