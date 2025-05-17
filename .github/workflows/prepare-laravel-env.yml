@@ -1,0 +1,61 @@
+name: Prepare Laravel Env
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to be used.'
+        required: false
+        type: string
+      php-version:
+        description: 'PHP version to be used.'
+        required: true
+        type: string
+    secrets:
+      composer-auth:
+        description: 'Credentials used to access private Composer repositories'
+        required: false
+
+jobs:
+  prepare:
+    name: Prepare Laravel Env
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          extensions: mbstring, xml, curl, zip, pdo, sqlite, dom, fileinfo, tokenizer, ctype, json, bcmath, openssl
+          coverage: none
+
+      # not all actions require Node.js
+      - name: Set up Node.js
+        if: inputs.node-version != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Confirm Versions
+        run: |
+          php --version
+          composer --version
+          if [ ! -z "${{ inputs.node-version }}" ]; then
+            echo "NPM Version: $(npm --version)"
+            echo "Node Version: $(node --version)"
+            echo "NPX Version: $(npx --version)"
+          fi
+
+      - name: Install Node.js Dependencies
+        if: inputs.node-version != ''
+        run: npm ci --no-scripts
+        continue-on-error: false
+
+      - name: Install Composer Dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: ' -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist'
+        env:
+          COMPOSER_AUTH: ${{ secrets.composer-auth }}
+        continue-on-error: false
