@@ -55,10 +55,10 @@ jobs:
           echo "Node Version: $(node --version)"
           echo "NPX Version: $(npx --version)"
 
-      - name: Install Node.js dependencies
+      - name: Install Node.js Dependencies
         run: npm ci --no-scripts
 
-      - name: Install Composer dependencies
+      - name: Install Composer Dependencies
         uses: ramsey/composer-install@v3
         with:
           composer-options: ' -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist'
