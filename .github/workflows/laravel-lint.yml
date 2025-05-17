@@ -55,8 +55,12 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: ' -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist'
         env:
-          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+          COMPOSER_AUTH: ${{ secrets.composer-auth }}
 
       - name: Run Laravel Pint
         run: vendor/bin/pint
