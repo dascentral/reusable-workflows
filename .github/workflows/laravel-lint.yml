@@ -38,6 +38,12 @@ jobs:
         with:
           php-version: ${{ inputs.php-version }}
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
       - name: Confirm Versions
         run: |
           php --version
