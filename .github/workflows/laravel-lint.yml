@@ -7,12 +7,10 @@ on:
         description: 'Node.js version to be used.'
         required: false
         type: string
-        default: '20.18.0'
       php-version:
         description: 'PHP version to be used.'
         required: false
         type: string
-        default: '8.4'
     secrets:
       composer-auth:
         description: 'Credentials used to access private Composer repositories'
