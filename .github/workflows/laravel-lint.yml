@@ -3,12 +3,12 @@ name: Linter
 on:
   workflow_call:
     inputs:
-      node-version:
-        description: 'Node.js version to be used.'
-        required: false
-        type: string
       php-version:
         description: 'PHP version to be used.'
+        required: true
+        type: string
+      node-version:
+        description: 'Node.js version to be used.'
         required: false
         type: string
       commit-changes:
