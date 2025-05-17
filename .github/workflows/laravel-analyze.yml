@@ -39,7 +39,7 @@ jobs:
           composer --version
 
       - name: Install composer dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@v3
         with:
           composer-options: '-q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist'
         env:
