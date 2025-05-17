@@ -1,0 +1,49 @@
+name: Analyze
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        description: 'PHP version to be used.'
+        required: false
+        type: string
+        default: '8.4'
+    secrets:
+      composer-auth:
+        description: 'Credentials used to access private Composer repositories'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  linter:
+    name: Linter
+
+    if: github.actor != 'dependabot[bot]'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+
+      - name: Confirm Versions
+        run: |
+          php --version
+          composer --version
+
+      - name: Install composer dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: '--prefer-dist'
+        env:
+          COMPOSER_AUTH: ${{ secrets.composer-auth }}
+
+      - name: Run PHPStan
+        run: ./vendor/bin/phpstan --error-format=github

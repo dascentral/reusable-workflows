@@ -1,0 +1,69 @@
+name: Linter
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to be used.'
+        required: false
+        type: string
+        default: '20.18.0'
+      php-version:
+        description: 'PHP version to be used.'
+        required: false
+        type: string
+        default: '8.4'
+    secrets:
+      composer-auth:
+        description: 'Credentials used to access private Composer repositories'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  linter:
+    name: Linter
+
+    if: github.actor != 'dependabot[bot]'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+
+      - name: Confirm Versions
+        run: |
+          php --version
+          composer --version
+          npm --version
+          node --version
+          npx --version
+
+      - name: Install Dependencies
+        run: |
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          npm ci
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+
+      - name: Run Laravel Pint
+        run: vendor/bin/pint
+
+      - name: Format Front-end
+        run: npm run format
+
+      - name: Lint Front-end
+        run: npm run lint
+
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Fix code style
+          commit_options: '--no-verify'
