@@ -48,9 +48,9 @@ jobs:
         run: |
           php --version
           composer --version
-          npm --version
-          node --version
-          npx --version
+          echo "NPM Version: $(npm --version)"
+          echo "Node Version: $(node --version)"
+          echo "NPX Version: $(npx --version)"
 
       - name: Install Node.js dependencies
         run: npm ci
