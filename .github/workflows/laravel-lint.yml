@@ -65,11 +65,9 @@ jobs:
       - name: Run Laravel Pint
         run: vendor/bin/pint
 
-      - name: Format Front-end
-        run: npm run format
+      - run: npm run format
 
-      - name: Lint Front-end
-        run: npm run lint
+      - run: npm run lint
 
       - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@v5
