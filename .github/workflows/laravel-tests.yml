@@ -23,7 +23,7 @@ on:
 
 jobs:
   tests:
-    name: Run Laravel Test Suite
+    name: Laravel Test Suite
 
     if: github.actor != 'dependabot[bot]'
 
