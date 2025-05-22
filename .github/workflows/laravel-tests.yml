@@ -11,11 +11,11 @@ on:
         description: 'Node.js version to be used.'
         required: false
         type: string
-      commit-changes:
-        description: 'Whether to automatically commit linting changes'
+      mysql-image:
+        description: 'MySQL image to be used.'
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'mysql:8'
     secrets:
       composer-auth:
         description: 'Credentials used to access private Composer repositories'
@@ -32,7 +32,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:8
+        image: ${{ inputs.mysql-image }}
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: testing
@@ -92,12 +92,12 @@ jobs:
         run: |
           php artisan test --coverage
 
-      # - name: Run Tests with Coverage
+      # - name: Run tests with coverage
       #   run: |
       #     php artisan test --coverage
       #     php artisan test:coverage --min=80
 
-      # - name: Upload Coverage Report
+      # - name: Upload coverage report
       #   uses: codecov/codecov-action@v4
       #   with:
       #     token: ${{ secrets.CODECOV_TOKEN }}
