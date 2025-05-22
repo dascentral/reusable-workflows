@@ -61,7 +61,7 @@ jobs:
       - name: Install Composer Dependencies
         uses: ramsey/composer-install@v3
         with:
-          composer-options: ' -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist'
+          composer-options: '-q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist'
         env:
           COMPOSER_AUTH: ${{ secrets.composer-auth }}
 
