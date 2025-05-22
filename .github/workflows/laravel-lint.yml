@@ -1,4 +1,4 @@
-name: Linter
+name: Laravel Linter
 
 on:
   workflow_call:
@@ -25,7 +25,7 @@ permissions:
   contents: write
 
 jobs:
-  linter:
+  lint:
     name: Laravel Linter
 
     if: github.actor != 'dependabot[bot]'
