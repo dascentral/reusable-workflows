@@ -1,0 +1,104 @@
+name: Tests
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        description: 'PHP version to be used.'
+        required: true
+        type: string
+      node-version:
+        description: 'Node.js version to be used.'
+        required: false
+        type: string
+      commit-changes:
+        description: 'Whether to automatically commit linting changes'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      composer-auth:
+        description: 'Credentials used to access private Composer repositories'
+        required: false
+
+jobs:
+  tests:
+    name: Run Laravel Test Suite
+
+    if: github.actor != 'dependabot[bot]'
+
+    # https://github.com/actions/runner-images/tree/main/images/linux
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+          tools: composer:v2
+          coverage: xdebug
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Confirm Versions
+        run: |
+          php --version
+          composer --version
+          echo "NPM Version: $(npm --version)"
+          echo "Node Version: $(node --version)"
+          echo "NPX Version: $(npx --version)"
+
+      - name: Install Node.js Dependencies
+        run: npm ci --no-scripts
+
+      - name: Set up Laravel environment
+        run: cp .env.ci .env
+
+      - name: Install Composer Dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: '-q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist'
+        env:
+          COMPOSER_AUTH: ${{ secrets.composer-auth }}
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Run tests
+        run: |
+          php artisan test --coverage
+
+      # - name: Run Tests with Coverage
+      #   run: |
+      #     php artisan test --coverage
+      #     php artisan test:coverage --min=80
+
+      # - name: Upload Coverage Report
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     fail_ci_if_error: true
