@@ -1,0 +1,111 @@
+name: Laravel Deploy
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        description: 'PHP version to be used.'
+        required: true
+        type: string
+      node-version:
+        description: 'Node.js version to be used.'
+        required: true
+        type: string
+      rsync-exclude:
+        description: 'File containing list of items to exclude during RSYNC.'
+        required: true
+        type: string
+        default: 'resources/deploy/exclude.txt'
+      ssh-user:
+        description: 'SSH user to be used.'
+        required: true
+        type: string
+      ssh-host:
+        description: 'SSH hostname to be used.'
+        required: true
+        type: string
+      destination-path:
+        description: 'Path to production folder.'
+        required: true
+        type: string
+    secrets:
+      composer-auth:
+        description: 'Credentials used to access private Composer repositories'
+        required: false
+      ssh-private-key:
+        description: 'SSH private key to be used.'
+        required: true
+
+jobs:
+  deploy:
+    name: Laravel Deploy
+
+    # https://github.com/actions/runner-images/tree/main/images/linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Confirm Versions
+        run: |
+          php --version
+          composer --version
+          echo "NPM Version: $(npm --version)"
+          echo "Node Version: $(node --version)"
+          echo "NPX Version: $(npx --version)"
+
+      - name: Install Node.js Dependencies
+        run: npm ci --no-scripts
+
+      - name: Set up Laravel environment
+        run: cp .env.ci .env
+
+      - name: Install Composer Dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: '-q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --no-dev --optimize-autoloader'
+        env:
+          COMPOSER_AUTH: ${{ secrets.composer-auth }}
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Build front-end assets
+        run: npm run build
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ssh-private-key }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ inputs.ssh-host }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy
+        run: |
+          rsync -avz --delete --exclude-from=${{ inputs.rsync-exclude }} ./ ${{ inputs.ssh-user }}@${{ inputs.ssh-host }}:${{ inputs.destination-path }}
+
+      - name: Reset the Laravel application
+        run: |
+          ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} "bash -s" << 'EOF'
+            DESTINATION="${{ inputs.destination-path }}"
+            find $DESTINATION -type d -exec chmod 755 {} \;
+            find $DESTINATION -type f -exec chmod 644 {} \;
+            chmod -R ug+rw $DESTINATION/storage
+            chmod -R ug+rw $DESTINATION/bootstrap/cache
+            php $DESTINATION/artisan migrate --force
+            php $DESTINATION/artisan optimize
+            php $DESTINATION/artisan horizon:terminate
+          EOF
