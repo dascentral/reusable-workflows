@@ -100,7 +100,7 @@ jobs:
           ssh-keygen -lf ~/.ssh/id_rsa
 
       - name: Test SSH connection
-        run: ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} "uname -a"
+        run: ssh -vvv -i ~/.ssh/id_rsa ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} "uname -a"
 
       # - name: Deploy via RSYNC
       #   run: |
