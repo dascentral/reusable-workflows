@@ -17,8 +17,8 @@ permissions:
   contents: write
 
 jobs:
-  linter:
-    name: Linter
+  analyzer:
+    name: Laravely Analyzer
 
     if: github.actor != 'dependabot[bot]'
 
