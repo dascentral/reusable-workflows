@@ -47,43 +47,43 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ inputs.php-version }}
+      # - name: Setup PHP
+      #   uses: shivammathur/setup-php@v2
+      #   with:
+      #     php-version: ${{ inputs.php-version }}
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ inputs.node-version }}
-          cache: 'npm'
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: ${{ inputs.node-version }}
+      #     cache: 'npm'
 
-      - name: Confirm Versions
-        run: |
-          php --version
-          composer --version
-          echo "NPM Version: $(npm --version)"
-          echo "Node Version: $(node --version)"
-          echo "NPX Version: $(npx --version)"
+      # - name: Confirm Versions
+      #   run: |
+      #     php --version
+      #     composer --version
+      #     echo "NPM Version: $(npm --version)"
+      #     echo "Node Version: $(node --version)"
+      #     echo "NPX Version: $(npx --version)"
 
-      - name: Install Node.js Dependencies
-        run: npm ci --no-scripts
+      # - name: Install Node.js Dependencies
+      #   run: npm ci --no-scripts
 
-      - name: Set up Laravel environment
-        run: cp .env.ci .env
+      # - name: Set up Laravel environment
+      #   run: cp .env.ci .env
 
-      - name: Install Composer Dependencies
-        uses: ramsey/composer-install@v3
-        with:
-          composer-options: '-q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --no-dev --optimize-autoloader'
-        env:
-          COMPOSER_AUTH: ${{ secrets.composer-auth }}
+      # - name: Install Composer Dependencies
+      #   uses: ramsey/composer-install@v3
+      #   with:
+      #     composer-options: '-q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --no-dev --optimize-autoloader'
+      #   env:
+      #     COMPOSER_AUTH: ${{ secrets.composer-auth }}
 
-      - name: Generate application key
-        run: php artisan key:generate
+      # - name: Generate application key
+      #   run: php artisan key:generate
 
-      - name: Build front-end assets
-        run: npm run build
+      # - name: Build front-end assets
+      #   run: npm run build
 
       - name: Set up SSH
         run: |
@@ -93,19 +93,22 @@ jobs:
           ssh-keyscan -H ${{ inputs.ssh-host }} >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Deploy
-        run: |
-          rsync -avz --delete --exclude-from=${{ inputs.rsync-exclude }} ./ ${{ inputs.ssh-user }}@${{ inputs.ssh-host }}:${{ inputs.destination-path }}
+      - name: Test SSH connection
+        run: ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} "uname -a"
 
-      - name: Reset the Laravel application
-        run: |
-          ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} "bash -s" << 'EOF'
-            DESTINATION="${{ inputs.destination-path }}"
-            find $DESTINATION -type d -exec chmod 755 {} \;
-            find $DESTINATION -type f -exec chmod 644 {} \;
-            chmod -R ug+rw $DESTINATION/storage
-            chmod -R ug+rw $DESTINATION/bootstrap/cache
-            php $DESTINATION/artisan migrate --force
-            php $DESTINATION/artisan optimize
-            php $DESTINATION/artisan horizon:terminate
-          EOF
+      # - name: Deploy via RSYNC
+      #   run: |
+      #     rsync -avz --delete --exclude-from=${{ inputs.rsync-exclude }} ./ ${{ inputs.ssh-user }}@${{ inputs.ssh-host }}:${{ inputs.destination-path }}
+
+      # - name: Reset the Laravel application
+      #   run: |
+      #     ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} "bash -s" << 'EOF'
+      #       DESTINATION="${{ inputs.destination-path }}"
+      #       find $DESTINATION -type d -exec chmod 755 {} \;
+      #       find $DESTINATION -type f -exec chmod 644 {} \;
+      #       chmod -R ug+rw $DESTINATION/storage
+      #       chmod -R ug+rw $DESTINATION/bootstrap/cache
+      #       php $DESTINATION/artisan migrate --force
+      #       php $DESTINATION/artisan optimize
+      #       php $DESTINATION/artisan horizon:terminate
+      #     EOF
