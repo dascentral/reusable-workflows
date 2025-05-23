@@ -93,6 +93,12 @@ jobs:
           ssh-keyscan -H ${{ inputs.ssh-host }} >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
+      - name: Validate injected private key
+        run: |
+          echo "${{ secrets.ssh-private-key }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keygen -lf ~/.ssh/id_rsa
+
       - name: Test SSH connection
         run: ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} "uname -a"
 
