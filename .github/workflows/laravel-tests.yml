@@ -85,7 +85,7 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
 
-      - name: Build assets
+      - name: Build front-end assets
         run: npm run build
 
       - name: Run tests
