@@ -1,4 +1,4 @@
-name: Laravel Linter
+name: Laravel Lint
 
 on:
   workflow_call:
