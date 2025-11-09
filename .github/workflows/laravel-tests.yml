@@ -76,7 +76,13 @@ jobs:
         run: npm ci --no-scripts
 
       - name: Set up Laravel environment
-        run: cp .env.ci .env
+        run: |
+          if [ ! -f .env.ci ]; then
+            echo "Error: .env.ci file not found. This file is required for the test environment."
+            exit 1
+          fi
+          cp .env.ci .env
+
 
       - name: Install Composer Dependencies
         uses: ramsey/composer-install@v3
