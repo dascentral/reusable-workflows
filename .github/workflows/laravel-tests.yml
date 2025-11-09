@@ -28,6 +28,8 @@ jobs:
 
     if: github.actor != 'dependabot[bot]'
 
+    timeout-minutes: 30
+
     # https://github.com/actions/runner-images/tree/main/images/linux
     runs-on: ubuntu-latest
 
