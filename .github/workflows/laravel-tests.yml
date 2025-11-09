@@ -11,6 +11,7 @@ on:
         description: 'Node.js version to be used.'
         required: false
         type: string
+        default: '24.11.0'
       mysql-image:
         description: 'MySQL image to be used.'
         required: false
