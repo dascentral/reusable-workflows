@@ -1,0 +1,27 @@
+name: SSH Setup
+
+description: Configure SSH agent and known hosts
+
+inputs:
+  ssh-private-key:
+    description: 'SSH private key'
+    required: true
+  ssh-host:
+    description: 'SSH hostname'
+    required: true
+  ssh-port:
+    description: 'SSH port'
+    required: false
+    default: '22'
+
+runs:
+  using: composite
+  steps:
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ inputs.ssh-private-key }}
+
+    - name: Add host to known hosts
+      shell: bash
+      run: ssh-keyscan -p ${{ inputs.ssh-port }} -H ${{ inputs.ssh-host }} >> ~/.ssh/known_hosts
