@@ -24,6 +24,11 @@ on:
         description: 'SSH hostname to be used.'
         required: true
         type: string
+      ssh-port:
+        description: 'SSH port to be used.'
+        required: false
+        type: number
+        default: 22
       destination-path:
         description: 'Path to production folder.'
         required: true
@@ -47,37 +52,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Set up Laravel
+        uses: dascentral/reusable-workflows/.github/actions/laravel-setup@7e78bc479e2836730a4e17fd435295ecaf4654bc # v0.4.0
         with:
           php-version: ${{ inputs.php-version }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
           node-version: ${{ inputs.node-version }}
-          cache: 'npm'
-
-      - name: Confirm Versions
-        run: |
-          php --version
-          composer --version
-          echo "NPM Version: $(npm --version)"
-          echo "Node Version: $(node --version)"
-          echo "NPX Version: $(npx --version)"
-
-      - name: Install Node.js Dependencies
-        run: npm ci --no-scripts
-
-      - name: Set up Laravel environment
-        run: cp .env.ci .env
-
-      - name: Install Composer Dependencies
-        uses: ramsey/composer-install@v3
-        with:
-          composer-options: '-q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --no-dev --optimize-autoloader'
-        env:
-          COMPOSER_AUTH: ${{ secrets.composer-auth }}
+          composer-auth: ${{ secrets.composer-auth }}
+          composer-dev: 'false'
 
       - name: Generate application key
         run: php artisan key:generate
@@ -86,20 +67,19 @@ jobs:
         run: npm run build
 
       - name: Set up SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.ssh-private-key }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ inputs.ssh-host }} >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
+        uses: dascentral/reusable-workflows/.github/actions/ssh-setup@7e78bc479e2836730a4e17fd435295ecaf4654bc # v0.4.0
+        with:
+          ssh-private-key: ${{ secrets.ssh-private-key }}
+          ssh-host: ${{ inputs.ssh-host }}
+          ssh-port: ${{ inputs.ssh-port }}
 
       - name: Deploy via RSYNC
         run: |
-          rsync -avz --delete --exclude-from=${{ inputs.rsync-exclude }} ./ ${{ inputs.ssh-user }}@${{ inputs.ssh-host }}:${{ inputs.destination-path }}
+          rsync -avz --delete -e "ssh -p ${{ inputs.ssh-port }}" --exclude-from=${{ inputs.rsync-exclude }} ./ ${{ inputs.ssh-user }}@${{ inputs.ssh-host }}:${{ inputs.destination-path }}
 
       - name: Reset the Laravel application
         run: |
-          ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} "bash -s" << 'EOF'
+          ssh -p ${{ inputs.ssh-port }} ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} "bash -s" << 'EOF'
             set -e
             DESTINATION="${{ inputs.destination-path }}"
             find $DESTINATION -type d -exec chmod 755 {} \;
