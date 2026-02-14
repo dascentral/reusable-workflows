@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Laravel
-        uses: dascentral/reusable-workflows/.github/actions/laravel-setup@7e78bc479e2836730a4e17fd435295ecaf4654bc # v0.4.0
+        uses: dascentral/reusable-workflows/.github/actions/laravel-setup@v0.4.2
         with:
           php-version: ${{ inputs.php-version }}
           node-version: ${{ inputs.node-version }}
