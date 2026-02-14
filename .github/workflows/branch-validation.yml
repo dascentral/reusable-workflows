@@ -1,0 +1,38 @@
+name: Branch Name Validation
+
+on:
+  workflow_call:
+    inputs:
+      prefixes:
+        description: 'Comma-separated list of valid branch name prefixes.'
+        required: false
+        type: string
+        default: 'feature,fix,chore,spike,dependabot'
+
+jobs:
+  validate-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Branch Name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          PREFIXES="${{ inputs.prefixes }}"
+
+          # Build regex from prefixes: ^(feature|fix|chore|spike|dependabot)/.+
+          PATTERN="^($(echo "$PREFIXES" | sed 's/,/|/g'))/.+"
+
+          if [[ ! "$BRANCH_NAME" =~ $PATTERN ]]; then
+            echo "❌ Branch name '$BRANCH_NAME' doesn't follow the required convention:"
+            echo "   Branch must start with one of:"
+            for prefix in $(echo "$PREFIXES" | tr ',' ' '); do
+              echo " - $prefix/"
+            done
+            echo ""
+            echo "   Examples:"
+            for prefix in $(echo "$PREFIXES" | tr ',' ' '); do
+              echo " - $prefix/short-description"
+            done
+            exit 1
+          fi
+
+          echo "✅ Branch name follows the required convention"
