@@ -100,6 +100,7 @@ jobs:
       - name: Reset the Laravel application
         run: |
           ssh ${{ inputs.ssh-user }}@${{ inputs.ssh-host }} "bash -s" << 'EOF'
+            set -e
             DESTINATION="${{ inputs.destination-path }}"
             find $DESTINATION -type d -exec chmod 755 {} \;
             find $DESTINATION -type f -exec chmod 644 {} \;
