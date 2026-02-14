@@ -1,0 +1,69 @@
+name: Laravel Setup
+
+description: Set up PHP, Node.js, and Laravel dependencies
+
+inputs:
+  php-version:
+    description: 'PHP version to be used'
+    required: true
+  node-version:
+    description: 'Node.js version to be used'
+    required: true
+  composer-auth:
+    description: 'Credentials used to access private Composer repositories'
+    required: false
+  composer-dev:
+    description: 'Include dev dependencies (set to false for production deploys)'
+    required: false
+    default: 'true'
+  php-coverage:
+    description: 'PHP coverage driver (e.g., xdebug, none)'
+    required: false
+    default: 'none'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        tools: composer:v2
+        coverage: ${{ inputs.php-coverage }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'npm'
+
+    - name: Confirm Versions
+      shell: bash
+      run: |
+        php --version
+        composer --version
+        echo "NPM Version: $(npm --version)"
+        echo "Node Version: $(node --version)"
+        echo "NPX Version: $(npx --version)"
+
+    - name: Install Node.js Dependencies
+      shell: bash
+      run: npm ci --no-scripts
+
+    - name: Set up Laravel environment
+      shell: bash
+      run: |
+        if [ ! -f .env.ci ]; then
+          echo "Error: .env.ci file not found. This file is required for the test environment."
+          exit 1
+        fi
+        cp .env.ci .env
+
+    - name: Install Composer Dependencies
+      uses: ramsey/composer-install@v3
+      with:
+        composer-options: >-
+          -q --no-ansi --no-interaction --no-scripts --no-progress --optimize-autoloader --prefer-dist
+          ${{ inputs.composer-dev == 'false' && '--no-dev' || '' }}
+      env:
+        COMPOSER_AUTH: ${{ inputs.composer-auth }}
