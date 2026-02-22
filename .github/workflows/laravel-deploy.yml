@@ -75,7 +75,7 @@ jobs:
 
       - name: Deploy via RSYNC
         run: |
-          rsync -avz --delete -e "ssh -p ${{ inputs.ssh-port }}" --exclude-from=${{ inputs.rsync-exclude }} ./ ${{ inputs.ssh-user }}@${{ inputs.ssh-host }}:${{ inputs.destination-path }}
+          rsync -avz --delete --delete-before -e "ssh -p ${{ inputs.ssh-port }}" --exclude-from=${{ inputs.rsync-exclude }} ./ ${{ inputs.ssh-user }}@${{ inputs.ssh-host }}:${{ inputs.destination-path }}
 
       - name: Reset the Laravel application
         run: |
