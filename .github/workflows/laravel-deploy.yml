@@ -15,7 +15,7 @@ on:
         description: 'File containing list of items to exclude during RSYNC.'
         required: false
         type: string
-        default: 'resources/deploy/exclude.txt'
+        default: 'deploy/rsync/exclude.txt'
       ssh-user:
         description: 'SSH user to be used.'
         required: true
