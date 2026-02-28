@@ -1,0 +1,32 @@
+name: Composer Audit
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        description: 'PHP version to be used.'
+        required: false
+        type: string
+        default: '8.4'
+
+jobs:
+  audit:
+    name: Composer Audit
+
+    if: github.actor != 'dependabot[bot]'
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php-version }}
+
+      - name: Run Composer Audit
+        run: composer audit
