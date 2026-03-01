@@ -86,7 +86,7 @@ jobs:
             find $DESTINATION -type f -exec chmod 644 {} \;
             chmod -R ug+rw $DESTINATION/storage
             chmod -R ug+rw $DESTINATION/bootstrap/cache
-            php $DESTINATION/artisan migrate --force
-            php $DESTINATION/artisan optimize
-            php $DESTINATION/artisan horizon:terminate
+            php${{ inputs.php-version }} $DESTINATION/artisan migrate --force
+            php${{ inputs.php-version }} $DESTINATION/artisan optimize
+            php${{ inputs.php-version }} $DESTINATION/artisan horizon:terminate
           EOF
