@@ -88,5 +88,7 @@ jobs:
             chmod -R ug+rw $DESTINATION/bootstrap/cache
             php${{ inputs.php-version }} $DESTINATION/artisan migrate --force
             php${{ inputs.php-version }} $DESTINATION/artisan optimize
+            php${{ inputs.php-version }} $DESTINATION/artisan event:cache
+            php${{ inputs.php-version }} $DESTINATION/artisan storage:link
             php${{ inputs.php-version }} $DESTINATION/artisan horizon:terminate
           EOF
