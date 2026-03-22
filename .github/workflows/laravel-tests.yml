@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Laravel
         uses: dascentral/reusable-workflows/.github/actions/laravel-setup@v0.4.2
