@@ -51,6 +51,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v6
 
+      - name: Copy .env.ci to .env
+        run: |
+          if [ -f .env.ci ]; then
+            cp .env.ci .env
+          fi
+
       - name: Set up Laravel
         uses: dascentral/reusable-workflows/.github/actions/laravel-setup@v0.4.2
         with:
