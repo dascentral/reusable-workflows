@@ -20,6 +20,9 @@ inputs:
     description: 'PHP coverage driver (e.g., xdebug, none)'
     required: false
     default: 'none'
+  env-file:
+    description: 'Environment file to copy to .env (e.g., .env.example, .env.testing)'
+    required: false
 
 runs:
   using: composite
@@ -51,13 +54,16 @@ runs:
       run: npm ci --no-scripts
 
     - name: Set up Laravel environment
+      if: inputs.env-file != ''
       shell: bash
+      env:
+        ENV_FILE: ${{ inputs.env-file }}
       run: |
-        if [ ! -f .env.ci ]; then
-          echo "Error: .env.ci file not found. This file is required for the test environment."
+        if [ ! -f "$ENV_FILE" ]; then
+          echo "Error: $ENV_FILE file not found."
           exit 1
         fi
-        cp .env.ci .env
+        cp "$ENV_FILE" .env
 
     - name: Install Composer Dependencies
       uses: ramsey/composer-install@v3
