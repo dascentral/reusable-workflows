@@ -33,6 +33,10 @@ on:
         description: 'Path to production folder.'
         required: true
         type: string
+      env-file:
+        description: 'Environment file to copy to .env (e.g., .env.ci, .env.example, .env.testing)'
+        required: false
+        type: string
     secrets:
       composer-auth:
         description: 'Credentials used to access private Composer repositories'
@@ -53,21 +57,19 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up Laravel
-        uses: dascentral/reusable-workflows/.github/actions/laravel-setup@v0.4.2
+        uses: dascentral/reusable-workflows/.github/actions/laravel-setup@v0.7.0
         with:
           php-version: ${{ inputs.php-version }}
           node-version: ${{ inputs.node-version }}
           composer-auth: ${{ secrets.composer-auth }}
           composer-dev: 'false'
-
-      - name: Generate application key
-        run: php artisan key:generate
+          env-file: ${{ inputs.env-file }}
 
       - name: Build front-end assets
         run: npm run build
 
       - name: Set up SSH
-        uses: dascentral/reusable-workflows/.github/actions/ssh-setup@v0.4.2
+        uses: dascentral/reusable-workflows/.github/actions/ssh-setup@v0.7.0
         with:
           ssh-private-key: ${{ secrets.ssh-private-key }}
           ssh-host: ${{ inputs.ssh-host }}

@@ -9,14 +9,17 @@ on:
         type: string
       node-version:
         description: 'Node.js version to be used.'
-        required: false
+        required: true
         type: string
-        default: '24.11.0'
       mysql-image:
         description: 'MySQL image to be used.'
         required: false
         type: string
         default: 'mysql:8'
+      env-file:
+        description: 'Environment file to copy to .env (e.g., .env.example, .env.testing)'
+        required: false
+        type: string
     secrets:
       composer-auth:
         description: 'Credentials used to access private Composer repositories'
@@ -51,19 +54,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v6
 
-      - name: Copy .env.ci to .env
-        run: |
-          if [ -f .env.ci ]; then
-            cp .env.ci .env
-          fi
-
       - name: Set up Laravel
-        uses: dascentral/reusable-workflows/.github/actions/laravel-setup@v0.4.2
+        uses: dascentral/reusable-workflows/.github/actions/laravel-setup@v0.7.0
         with:
           php-version: ${{ inputs.php-version }}
           node-version: ${{ inputs.node-version }}
           php-coverage: xdebug
           composer-auth: ${{ secrets.composer-auth }}
+          env-file: ${{ inputs.env-file }}
 
       - name: Generate application key
         run: php artisan key:generate
