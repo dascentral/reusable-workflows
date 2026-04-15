@@ -59,7 +59,7 @@ jobs:
         run: npm ci --no-scripts
 
       - name: Install Composer Dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           composer-options: '-q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist'
         env:
