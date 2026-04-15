@@ -56,12 +56,14 @@ runs:
     - name: Set up Laravel environment
       if: inputs.env-file != ''
       shell: bash
+      env:
+        ENV_FILE: ${{ inputs.env-file }}
       run: |
-        if [ ! -f "${{ inputs.env-file }}" ]; then
-          echo "Error: ${{ inputs.env-file }} file not found."
+        if [ ! -f "$ENV_FILE" ]; then
+          echo "Error: $ENV_FILE file not found."
           exit 1
         fi
-        cp "${{ inputs.env-file }}" .env
+        cp "$ENV_FILE" .env
 
     - name: Install Composer Dependencies
       uses: ramsey/composer-install@v3
