@@ -18,7 +18,7 @@ jobs:
           BRANCH_NAME="${{ github.head_ref }}"
           PREFIXES="${{ inputs.prefixes }}"
 
-          # Build regex from prefixes: ^(feature|fix|chore|spike|dependabot)/.+
+          # Build regex from prefixes: ^(feature|fix|chore|spike|claude|dependabot)/.+
           PATTERN="^($(echo "$PREFIXES" | sed 's/,/|/g'))/.+"
 
           if [[ ! "$BRANCH_NAME" =~ $PATTERN ]]; then
