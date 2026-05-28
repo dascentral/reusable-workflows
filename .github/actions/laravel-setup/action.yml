@@ -35,7 +35,7 @@ runs:
         coverage: ${{ inputs.php-coverage }}
 
     - name: Set up Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v6.4.0
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'npm'
@@ -66,7 +66,7 @@ runs:
         cp "$ENV_FILE" .env
 
     - name: Install Composer Dependencies
-      uses: ramsey/composer-install@v3
+      uses: ramsey/composer-install@v4
       with:
         composer-options: >-
           -q --no-ansi --no-interaction --no-scripts --no-progress --optimize-autoloader --prefer-dist
